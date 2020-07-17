@@ -81,10 +81,10 @@ public class StreamingDirector
 					// and the appropriate video format extension
 					log.debug("Creating the transcoding");
 					FFmpegBuilder builder = (new FFmpegBuilder()
-											.setInput(input_dir + video.getName())
-											.addOutput(output_dir + current_video_name + "-" + bitrate + "Mbps" + format))
-											.setVideoBitRate(video_bitrates.get(bitrate))
-											.done();
+								.setInput(input_dir + video.getName())
+								.addOutput(output_dir + current_video_name + "-" + bitrate + "Mbps" + format))
+								.setVideoBitRate(video_bitrates.get(bitrate))
+								.done();
 					
 					log.debug("Creating the executor");
 					FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
@@ -120,7 +120,7 @@ public class StreamingDirector
 		frame.getContentPane().setLayout(null);
 		frame.setResizable(false);
 		
-	    // Input Videos List Layout
+	    	// Input Videos List Layout
 		DefaultListModel<String> list_model = new DefaultListModel<>();
 		String input_dir = "raw_videos/";
 		
