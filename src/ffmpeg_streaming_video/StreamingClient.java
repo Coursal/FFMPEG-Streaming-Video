@@ -190,22 +190,22 @@ public class StreamingClient
 		    	{	    		
 		    		// send the request (bitrate and format) to the server
 		    		// and receive a list of videos based on the request
-					send_request_to_server(output_stream, input_stream);
-					
-					// gray out the components already used for the first response of the server
-					bitrate.setEnabled(false);
-					format.setEnabled(false);
-					btnConnect.setEnabled(false);
-					
-					// enable the components to be used for the second response of the server
-					video.setEnabled(true);
-					protocol.setEnabled(true);
-					btnStream.setEnabled(true);
-				} 
+				send_request_to_server(output_stream, input_stream);
+
+				// gray out the components already used for the first response of the server
+				bitrate.setEnabled(false);
+				format.setEnabled(false);
+				btnConnect.setEnabled(false);
+
+				// enable the components to be used for the second response of the server
+				video.setEnabled(true);
+				protocol.setEnabled(true);
+				btnStream.setEnabled(true);
+			} 
 		    	catch (Exception e) 
 		    	{
-					e.printStackTrace();
-				}
+				e.printStackTrace();
+			}
 		    }
 		});
 
@@ -228,11 +228,11 @@ public class StreamingClient
 		    		socket.close();
 		    		
 		    		System.exit(0);	// close the GUI window of the client
-				} 
+			} 
 		    	catch (Exception e) 
 		    	{
-					e.printStackTrace();
-				}
+				e.printStackTrace();
+			}
 		    }
 		});
 	}
