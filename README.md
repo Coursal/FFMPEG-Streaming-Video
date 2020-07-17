@@ -48,5 +48,6 @@ In more detail, the application is divided into 3 apps:
 * The project assumes that the ![FFMPEG tools](https://ffmpeg.org/) are located in the `C:\ffmpeg` path and the project itself is located in the `C:\Users\N\eclipse-workspace` path. You need to change those paths accordingly for your machine
 * Every video located in the `raw_videos` directory **must not** contain any space in its filename.
 * There is no check whether the files inside `raw_videos` are actual videos or not.
+* For the _RTP/UDP_ network protocol, the `video.sdp` file with the essential stream characteristics is located locally inside the project.
 * The video stream might seem like "freezing" after a few tests. This is not the project's fault. FFMPEG is really not _that_ optimised for this kind of tasks.
 * Made and tested in _Eclipse IDE_, using the ![WindowBuilder plugin](https://www.eclipse.org/windowbuilder/) for everything GUI (Swing, AWT) related.
