@@ -31,7 +31,7 @@ public class StreamingClient
 	private JComboBox bitrate;
 	private JLabel lblFormat;
 	private JComboBox format;
-	private JButton btnConnect;
+	private JButton btnStart;
 
 	private JLabel lblVideo;
 	private JComboBox video;
@@ -122,7 +122,7 @@ public class StreamingClient
 		//--------------------------------------
 		
 		// Format Dropdown Menu (with its choices)
-		lblFormat = new JLabel("Format");
+		lblFormat = new JLabel("Type");
 		lblFormat.setBounds(191, 11, 43, 14);
 		frame.getContentPane().add(lblFormat);
 		
@@ -134,10 +134,10 @@ public class StreamingClient
 		format.addItem("mkv");
 		//--------------------------------------
 		
-		// Connect Button
-		btnConnect = new JButton("Connect");
-		btnConnect.setBounds(82, 67, 89, 23);
-		frame.getContentPane().add(btnConnect);
+		// Start Button
+		btnStart = new JButton("Start");
+		btnStart.setBounds(82, 67, 89, 23);
+		frame.getContentPane().add(btnStart);
 		//--------------------------------------
 	
 		// Video Dropdown Menu (with its choices added later, sent by the server)
@@ -151,7 +151,7 @@ public class StreamingClient
 		//--------------------------------------
 		
 		// Protocol Dropdown Menu (with its choices)
-		lblProtocol = new JLabel("Protocol");
+		lblProtocol = new JLabel("With");
 		lblProtocol.setBounds(10, 162, 51, 14);
 		frame.getContentPane().add(lblProtocol);
 		
@@ -175,7 +175,7 @@ public class StreamingClient
 		btnStream.setEnabled(false);
 		
 		// implementation of the listener after the Connect button is pressed
-		btnConnect.addActionListener(event -> {
+		btnStart.addActionListener(event -> {
 			log.debug("Connect button has been pressed");
 
 			try
@@ -187,7 +187,7 @@ public class StreamingClient
 				// gray out the components already used for the first response of the server
 				bitrate.setEnabled(false);
 				format.setEnabled(false);
-				btnConnect.setEnabled(false);
+				btnStart.setEnabled(false);
 
 				// enable the components to be used for the second response of the server
 				video.setEnabled(true);

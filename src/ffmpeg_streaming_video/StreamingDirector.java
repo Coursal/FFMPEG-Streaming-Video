@@ -2,10 +2,9 @@ package ffmpeg_streaming_video;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 
 import javax.swing.DefaultListModel;
@@ -26,31 +25,32 @@ import javax.swing.JScrollPane;
 
 public class StreamingDirector 
 {
-	private JFrame frame;
+	private static JFrame frame;
 	static Logger log = LogManager.getLogger(StreamingDirector.class);
-	
-	File[] generate_videos()
+
+	File[] generate_videos() throws NullPointerException, IOException
 	{
 		// setting up the relative paths of the directories to fetch and store videos
-		String input_dir = "raw_videos/";
-		String output_dir = "videos/";
+		String input_dir_str = "raw_videos/";
+		String output_dir_str = "videos/";
+		File output_dir = new File(output_dir_str);
 		
 		FFmpeg ffmpeg = null;
 		FFprobe ffprobe = null;
-		
-		try 
+
+		try
 		{
 			log.debug("Initialising FFMpegClient");
 			ffmpeg = new FFmpeg("/usr/bin/ffmpeg");
 			ffprobe = new FFprobe("/usr/bin/ffprobe");
-		} 
-		catch (IOException e) 
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		
+
 		// array of raw videos from the /raw_videos directory
-		File[] raw_videos = new File(input_dir).listFiles();
+		File[] raw_videos = new File(input_dir_str).listFiles();
 		
 		// array of video formats to generate
 		String[] video_formats = {".avi", ".mp4", ".mkv"};
@@ -61,12 +61,15 @@ public class StreamingDirector
 		video_bitrates.put(0.5f, 500000L);		//0.5Mbps
 		video_bitrates.put(1.0f, 1000000L);		//1Mbps
 		video_bitrates.put(3.0f, 3000000L);		//3Mbps
+
+		if(!output_dir.exists())
+			Files.createDirectories(output_dir.toPath());
 		
 		// scanning each raw video...
 		for(File video : raw_videos)
 		{
 			System.out.println("Raw video found: " + video.getName());
-			String current_video_name = video.getName().split("/.")[0].replaceAll(" ", "_");
+			String current_video_name = video.getName().replaceFirst("[.][^.]+$", "").replaceAll(" ", "_");
 
 			// for each video format...
 			for(String format : video_formats)
@@ -81,8 +84,8 @@ public class StreamingDirector
 					// and the appropriate video format extension
 					log.debug("Creating the transcoding");
 					FFmpegBuilder builder = (new FFmpegBuilder()
-								.setInput(input_dir + video.getName())
-								.addOutput(output_dir + current_video_name + "-" + bitrate + "Mbps" + format))
+								.setInput(input_dir_str + video.getName())
+								.addOutput(output_dir_str + current_video_name + "-" + bitrate + "Mbps" + format))
 								.setVideoBitRate(video_bitrates.get(bitrate))
 								.done();
 					
@@ -107,12 +110,10 @@ public class StreamingDirector
 		
 		System.out.println("Done!");
 		
-		//File[] output_videos = new File(output_dir).listFiles();
-		
-		return new File(output_dir).listFiles();
+		return output_dir.listFiles();
 	}
 	
-	public StreamingDirector() 
+	public StreamingDirector() throws NullPointerException
 	{
 		frame = new JFrame("Streaming Director");
 		frame.setBounds(100, 100, 450, 450);
@@ -165,32 +166,28 @@ public class StreamingDirector
 		frame.getContentPane().add(btnStart);
 		
 		btnStart.addActionListener(e -> {
-			File[] output_videos = generate_videos();
+			File[] output_videos = new File[0];
 
-			// if the /raw_videos/ directory was empty (so the generate_videos() function returned an empty array)
-			// show a pop up dialog message about it
-			if(output_videos.length == 0)
+			try
 			{
-				JOptionPane.showMessageDialog(frame, "/raw_videos/ directory seems empty.", "Exiting...", JOptionPane.ERROR_MESSAGE);
-				System.exit(0);
+				output_videos = generate_videos();
 			}
-			else
+			catch (IOException ioException)
 			{
-				DefaultListModel<String> updated_input_list_model = new DefaultListModel<>();
-				updated_input_list_model.clear();
-				input_list.setModel(updated_input_list_model);
-
-				// update the output video list from /videos
-				DefaultListModel<String> updated_output_list_model = new DefaultListModel<>();
-
-				for(File video : output_videos)
-					updated_output_list_model.addElement(video.getName());
-
-				output_list.setModel(updated_output_list_model);
-
-				// disable the 'Start' button after pressing it
-				btnStart.setEnabled(false);
+				ioException.printStackTrace();
 			}
+
+			DefaultListModel<String> updated_input_list_model = new DefaultListModel<>();
+			updated_input_list_model.clear();
+			input_list.setModel(updated_input_list_model);
+
+			// update the output video list from /videos
+			DefaultListModel<String> updated_output_list_model = new DefaultListModel<>();
+
+			for(File video : output_videos)
+				updated_output_list_model.addElement(video.getName());
+
+			output_list.setModel(updated_output_list_model);
 		});
 		
 		JButton btnExit = new JButton("Exit");
@@ -202,16 +199,26 @@ public class StreamingDirector
 	
 	public static void main(String[] args) 
 	{
-		EventQueue.invokeLater(() -> {
-			try
-			{
-				StreamingDirector window = new StreamingDirector();
-				window.frame.setVisible(true);
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-		});
+			EventQueue.invokeLater(() -> {
+				try
+				{
+					if(new File("raw_videos/").listFiles().length == 0)
+						JOptionPane.showMessageDialog(frame, "'/raw_videos' directory seems empty.", "Exiting...", JOptionPane.ERROR_MESSAGE);
+					else
+					{
+						StreamingDirector window = new StreamingDirector();
+						window.frame.setVisible(true);
+					}
+				}
+				catch(NullPointerException npe)
+				{
+					JOptionPane.showMessageDialog(frame, "No '/raw_videos' directory found. Please create it in the project directory.", "Exiting...", JOptionPane.ERROR_MESSAGE);
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+			});
+
 	}
 }
