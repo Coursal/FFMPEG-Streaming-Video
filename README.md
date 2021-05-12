@@ -45,7 +45,7 @@ In more detail, the application is divided into 3 apps:
 
 ## Project Info/Limitations (as of now)
 * Every app/part of the project is written in a way that its implementation and operation is strictly contained to one class/file.
-* The project assumes that you have ![FFMPEG](https://ffmpeg.org/) installed under `/usr/bin/` in Linux.
+* The project assumes that you have [FFMPEG](https://ffmpeg.org/) installed under `/usr/bin/` in Linux.
 * There is no check whether the files inside `/raw_videos` are actual videos or not.
 * For the _RTP/UDP_ network protocol, the `video.sdp` file with the essential stream characteristics is located locally inside the project.
 * The video stream might seem like "freezing" after a few tests. This is not the project's fault. FFMPEG is really not _that_ optimised for this kind of tasks.
