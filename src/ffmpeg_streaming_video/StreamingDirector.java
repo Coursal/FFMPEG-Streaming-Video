@@ -2,6 +2,8 @@ package ffmpeg_streaming_video;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,8 +21,6 @@ import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
@@ -41,8 +41,8 @@ public class StreamingDirector
 		try 
 		{
 			log.debug("Initialising FFMpegClient");
-			ffmpeg = new FFmpeg("C:\\ffmpeg\\bin\\ffmpeg.exe");
-			ffprobe = new FFprobe("C:\\ffmpeg\\bin\\ffprobe.exe");
+			ffmpeg = new FFmpeg("/usr/bin/ffmpeg");
+			ffprobe = new FFprobe("/usr/bin/ffprobe");
 		} 
 		catch (IOException e) 
 		{
@@ -56,17 +56,17 @@ public class StreamingDirector
 		String[] video_formats = {".avi", ".mp4", ".mkv"};
 		
 		// hashmap of the video bitrates in both float (Mbps) and long (bps) data types
-		HashMap<Float, Long> video_bitrates = new HashMap<Float, Long>();
-		video_bitrates.put(new Float(0.2f), new Long(200000L));		//0.2Mbps
-		video_bitrates.put(new Float(0.5f), new Long(500000L));		//0.5Mbps
-		video_bitrates.put(new Float(1.0f), new Long(1000000L));	//1Mpbs
-		video_bitrates.put(new Float(3.0f), new Long(3000000L));	//3Mbps
+		HashMap<Float, Long> video_bitrates = new HashMap<>();
+		video_bitrates.put(0.2f, 200000L);		//0.2Mbps
+		video_bitrates.put(0.5f, 500000L);		//0.5Mbps
+		video_bitrates.put(1.0f, 1000000L);		//1Mbps
+		video_bitrates.put(3.0f, 3000000L);		//3Mbps
 		
 		// scanning each raw video...
 		for(File video : raw_videos)
 		{
 			System.out.println("Raw video found: " + video.getName());
-			String current_video_name = video.getName().split("\\.")[0];
+			String current_video_name = video.getName().split("/.")[0].replaceAll(" ", "_");
 
 			// for each video format...
 			for(String format : video_formats)
@@ -74,7 +74,7 @@ public class StreamingDirector
 				// and for each bitrate...
 				for (Float bitrate : video_bitrates.keySet()) 
 				{
-					System.out.println("Converting \'" + current_video_name + "\' to \'" + format + "\' with " + bitrate + "Mbps bitrate");
+					System.out.println("Converting '" + current_video_name + "' to '" + format + "' with " + bitrate + "Mbps bitrate");
 					
 					// generate the video file 
 					// with the appropriate bitrate tag at the title
@@ -101,15 +101,15 @@ public class StreamingDirector
 		// deleting all videos in the /raw_videos directory
 		for(File video : raw_videos)
 		{
-			System.out.println("Deleting \'" + video.getName() + "\'...");
+			System.out.println("Deleting '" + video.getName() + "'...");
 			video.delete();
 		}
 		
 		System.out.println("Done!");
 		
-		File[] output_videos = new File(output_dir).listFiles();
+		//File[] output_videos = new File(output_dir).listFiles();
 		
-		return output_videos;
+		return new File(output_dir).listFiles();
 	}
 	
 	public StreamingDirector() 
@@ -120,7 +120,7 @@ public class StreamingDirector
 		frame.getContentPane().setLayout(null);
 		frame.setResizable(false);
 		
-	    	// Input Videos List Layout
+		// Input Videos List Layout
 		DefaultListModel<String> list_model = new DefaultListModel<>();
 		String input_dir = "raw_videos/";
 		
@@ -155,76 +155,62 @@ public class StreamingDirector
 		lblvideosDirectory.setBounds(234, 43, 150, 14);
 		frame.getContentPane().add(lblvideosDirectory);
 		
-		JLabel lblInfolabel = new JLabel("Press \'Generate\' to create all the different versions to the /videos folder.");
+		JLabel lblInfolabel = new JLabel("Press 'Start' to create all the versions to /videos.");
 		lblInfolabel.setBounds(10, 11, 414, 14);
 		frame.getContentPane().add(lblInfolabel);
 		//--------------------------------------
 		
-		JButton btnGenerate = new JButton("Generate");
-		btnGenerate.setBounds(116, 369, 94, 32);
-		frame.getContentPane().add(btnGenerate);
+		JButton btnStart = new JButton("Start");
+		btnStart.setBounds(116, 369, 94, 32);
+		frame.getContentPane().add(btnStart);
 		
-		btnGenerate.addActionListener(new ActionListener() 
-		{
-		    public void actionPerformed(ActionEvent e)
-		    {   	
-		        File[] output_videos = generate_videos();
-		        
-		        // if the /raw_videos/ directory was empty (so the generate_videos() function returned an empty array)
-		        // show a pop up dialog message about it
-		        if(output_videos.length == 0)
-		        {
-		        	JOptionPane.showMessageDialog(frame, "/raw_videos/ directory seems empty.", "Exiting...", JOptionPane.ERROR_MESSAGE);
-		        	System.exit(0);
-		        }
-		        else
-		        {
-		        	DefaultListModel<String> updated_input_list_model = new DefaultListModel<>();
-		        	updated_input_list_model.clear();
-		        	input_list.setModel(updated_input_list_model);
-		        	
-		        	// update the output video list from /videos
-			    	DefaultListModel<String> updated_output_list_model = new DefaultListModel<>();
-			    	
-			        for(File video : output_videos)
-			        	updated_output_list_model.addElement(video.getName());
-			        
-			        output_list.setModel(updated_output_list_model);
-			        
-			        // disable the 'Generate' button after pressing it
-			        btnGenerate.setEnabled(false);
-		        }
-		    }
+		btnStart.addActionListener(e -> {
+			File[] output_videos = generate_videos();
+
+			// if the /raw_videos/ directory was empty (so the generate_videos() function returned an empty array)
+			// show a pop up dialog message about it
+			if(output_videos.length == 0)
+			{
+				JOptionPane.showMessageDialog(frame, "/raw_videos/ directory seems empty.", "Exiting...", JOptionPane.ERROR_MESSAGE);
+				System.exit(0);
+			}
+			else
+			{
+				DefaultListModel<String> updated_input_list_model = new DefaultListModel<>();
+				updated_input_list_model.clear();
+				input_list.setModel(updated_input_list_model);
+
+				// update the output video list from /videos
+				DefaultListModel<String> updated_output_list_model = new DefaultListModel<>();
+
+				for(File video : output_videos)
+					updated_output_list_model.addElement(video.getName());
+
+				output_list.setModel(updated_output_list_model);
+
+				// disable the 'Start' button after pressing it
+				btnStart.setEnabled(false);
+			}
 		});
 		
 		JButton btnExit = new JButton("Exit");
 		btnExit.setBounds(233, 369, 94, 32);
 		frame.getContentPane().add(btnExit);
 		
-		btnExit.addActionListener(new ActionListener() 
-		{
-		    public void actionPerformed(ActionEvent e)
-		    {
-		        System.exit(0);
-		    }
-		});
+		btnExit.addActionListener(e -> System.exit(0));
 	}
 	
 	public static void main(String[] args) 
 	{
-		EventQueue.invokeLater(new Runnable() 
-		{
-			public void run() 
+		EventQueue.invokeLater(() -> {
+			try
 			{
-				try 
-				{
-					StreamingDirector window = new StreamingDirector();
-					window.frame.setVisible(true);
-				} 
-				catch(Exception e) 
-				{
-					e.printStackTrace();
-				}
+				StreamingDirector window = new StreamingDirector();
+				window.frame.setVisible(true);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
 			}
 		});
 	}

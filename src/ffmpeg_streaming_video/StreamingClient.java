@@ -1,8 +1,6 @@
 package ffmpeg_streaming_video;
 
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,7 +17,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class StreamingClient
@@ -46,7 +43,7 @@ public class StreamingClient
 	
 	void send_request_to_server(ObjectOutputStream output_stream, ObjectInputStream input_stream) throws Exception
 	{
-		ArrayList<String> request = new ArrayList<String>();
+		ArrayList<String> request = new ArrayList<>();
 		request.add(bitrate.getSelectedItem().toString());
 		request.add(format.getSelectedItem().toString());
 		
@@ -65,7 +62,7 @@ public class StreamingClient
 	
 	void send_specs_to_server(ObjectOutputStream output_stream) throws Exception
 	{
-		ArrayList<String> stream_specs = new ArrayList<String>();
+		ArrayList<String> stream_specs = new ArrayList<>();
 		stream_specs.add(video.getSelectedItem().toString());
 		stream_specs.add(protocol.getSelectedItem().toString());
 	
@@ -74,11 +71,9 @@ public class StreamingClient
 		
 		// create a process through the command line to run the ffplay program
 		// to play the incoming streamed video with the appropriate arguments
-		ArrayList<String> command_line_args = new ArrayList<String>();
-		
-		command_line_args.add("cmd");
-		command_line_args.add("/c");
-		command_line_args.add("C:\\ffmpeg\\bin\\ffplay.exe");
+		ArrayList<String> command_line_args = new ArrayList<>();
+
+		command_line_args.add("ffplay");
 		
 		if(protocol.getSelectedItem().toString().equals("UDP"))
 			command_line_args.add("udp://127.0.0.1:6000");
@@ -98,7 +93,7 @@ public class StreamingClient
 		log.debug("Process to play the incoming stream started");
 	}
 	
-	public StreamingClient() throws UnknownHostException, IOException 
+	public StreamingClient() throws IOException
 	{
 		// setting up the socket address and port
 		// and the output and input streams to send and receive data to the server
@@ -180,16 +175,13 @@ public class StreamingClient
 		btnStream.setEnabled(false);
 		
 		// implementation of the listener after the Connect button is pressed
-		btnConnect.addActionListener(new ActionListener() 
-		{
-		    public void actionPerformed(ActionEvent event)
-		    {
-		    	log.debug("\'Connect\' button has been pressed");
-		    	
-		    	try 
-		    	{	    		
-		    		// send the request (bitrate and format) to the server
-		    		// and receive a list of videos based on the request
+		btnConnect.addActionListener(event -> {
+			log.debug("Connect button has been pressed");
+
+			try
+			{
+				// send the request (bitrate and format) to the server
+				// and receive a list of videos based on the request
 				send_request_to_server(output_stream, input_stream);
 
 				// gray out the components already used for the first response of the server
@@ -201,63 +193,54 @@ public class StreamingClient
 				video.setEnabled(true);
 				protocol.setEnabled(true);
 				btnStream.setEnabled(true);
-			} 
-		    	catch (Exception e) 
-		    	{
+			}
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
-		    }
 		});
 
 		// implementation of the listener after the Stream button is pressed
-		btnStream.addActionListener(new ActionListener() 
-		{
-		    public void actionPerformed(ActionEvent event)
-		    {
-		    	log.debug("\'Stream\' button has been pressed");
-		    	
-		    	try 
-		    	{
-		    		// send the specifications (selected video and protocol) to the server
-		    		// and stream the incoming video through ffplay
-		    		send_specs_to_server(output_stream);
-		    		
-		    		// close the socket and streams from the client when all communications are done
-		    		output_stream.close();
-		    		input_stream.close();
-		    		socket.close();
-		    		
-		    		System.exit(0);	// close the GUI window of the client
-			} 
-		    	catch (Exception e) 
-		    	{
+		btnStream.addActionListener(event -> {
+			log.debug("'Stream' button has been pressed");
+
+			try
+			{
+				// send the specifications (selected video and protocol) to the server
+				// and stream the incoming video through ffplay
+				send_specs_to_server(output_stream);
+
+				// close the socket and streams from the client when all communications are done
+				output_stream.close();
+				input_stream.close();
+				socket.close();
+
+				System.exit(0);	// close the GUI window of the client
+			}
+				catch (Exception e)
+				{
 				e.printStackTrace();
 			}
-		    }
 		});
 	}
 	
 	public static void main(String[] args) 
 	{
-		EventQueue.invokeLater(new Runnable() 
-		{
-			public void run() 
+		EventQueue.invokeLater(() -> {
+			try
 			{
-				try
-				{
-					StreamingClient window = new StreamingClient();
-					window.frame.setVisible(true);
-				} 
-				catch(ConnectException e)
-				{
-					JOptionPane.showMessageDialog(frame, "Connection refused. Start the server and try again.", "Exiting...", JOptionPane.ERROR_MESSAGE);
-				}
-				catch(Exception e) 
-				{
-					e.printStackTrace();
-				}
-				
+				StreamingClient window = new StreamingClient();
+				window.frame.setVisible(true);
 			}
+			catch(ConnectException e)
+			{
+				JOptionPane.showMessageDialog(frame, "Connection refused. Start the server and try again.", "Exiting...", JOptionPane.ERROR_MESSAGE);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+
 		});
 	}
 }

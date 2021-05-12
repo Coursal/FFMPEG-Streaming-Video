@@ -1,9 +1,10 @@
 v=0
 o=- 0 0 IN IP4 127.0.0.1
-s=No Name
+s=The Bean Kicked In
 c=IN IP4 127.0.0.1
 t=0 0
-a=tool:libavformat 58.42.100
+a=tool:libavformat 58.45.100
 m=video 5004 RTP/AVP 96
+b=AS:3073
 a=rtpmap:96 H264/90000
-a=fmtp:96 packetization-mode=1; sprop-parameter-sets=Z2QAFazZQKAjsBEAAAMD6QAAu4APFi2W,aOvssiw=; profile-level-id=640015
+a=fmtp:96 packetization-mode=1; sprop-parameter-sets=Z2QAH6zZQNg95vARAAADAAEAAAMAPA8YMZY=,aOvssiw=; profile-level-id=64001F

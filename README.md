@@ -10,10 +10,10 @@ In more detail, the application is divided into 3 apps:
 ## Project Description
 ### Streaming Director
 #### Execution Steps
-* Scanning the `raw_videos` directory for videos
+* Scanning the `/raw_videos` directory for videos
 * Generating 12 different files (with differences in the file format and/or the bitrate) for each video (using the ![ffmpeg-cli-wrapper](https://github.com/bramp/ffmpeg-cli-wrapper))
-* Saving the generated videos to the `videos` directory
-* Deleting all videos from the `raw_videos` directory
+* Saving the generated videos to the `/videos` directory
+* Deleting all videos from the `/raw_videos` directory
 
 #### App GUI Example
 ![](readme_media/dir.gif)
@@ -21,7 +21,7 @@ In more detail, the application is divided into 3 apps:
 ### Streaming Server
 #### Execution Steps
 * Waiting and receiving a client request (that contains the selected bitrate and file format by the end user)
-* Creating a list from the videos in the `videos` directory that match the info given by the request (every video with this particular format and smaller or equal bitrate to the one chosen)
+* Creating a list from the videos in the `/videos` directory that match the info given by the request (every video with this particular format and smaller or equal bitrate to the one chosen)
 * Sending this list of video names to the client
 * Receiving the response of the client (that contains the selected video from the list, along with a given network protocol of _TCP_, _UDP_, _RTP/UDP_)
 * Streaming the selected video through the given protocol to the client (by creating a _ffmpeg.exe_ process in the local system)
@@ -45,9 +45,7 @@ In more detail, the application is divided into 3 apps:
 
 ## Project Info/Limitations (as of now)
 * Every app/part of the project is written in a way that its implementation and operation is strictly contained to one class/file.
-* The project assumes that the ![FFMPEG tools](https://ffmpeg.org/) are located in the `C:\ffmpeg` path and the project itself is located in the `C:\Users\N\eclipse-workspace` path. You need to change those paths accordingly for your machine
-* Every video located in the `raw_videos` directory **must not** contain any space in its filename.
-* There is no check whether the files inside `raw_videos` are actual videos or not.
+* The project assumes that you have ![FFMPEG](https://ffmpeg.org/) installed under `/usr/bin/` in Linux.
+* There is no check whether the files inside `/raw_videos` are actual videos or not.
 * For the _RTP/UDP_ network protocol, the `video.sdp` file with the essential stream characteristics is located locally inside the project.
 * The video stream might seem like "freezing" after a few tests. This is not the project's fault. FFMPEG is really not _that_ optimised for this kind of tasks.
-* Made and tested in _Eclipse IDE_, using the ![WindowBuilder plugin](https://www.eclipse.org/windowbuilder/) for everything GUI (Swing, AWT) related.
